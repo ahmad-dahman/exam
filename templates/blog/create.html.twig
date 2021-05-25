@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %} {#heritage de template base.html.twig#}
+
+{% form_theme formArticle 'bootstrap_4_layout.html.twig' %} {#appel de theme de formulaire q'on a deja ajouter au fichie twig.yaml#}
+
+{% block body %}
+
+<h1>creation d'un article</h1>
+
+{{ form_start(formArticle) }}
+
+{{form_row(formArticle.title, {'attr': {'placeholder': "Titre de l'article"}})}}
+{{form_row(formArticle.category)}}
+{{form_row(formArticle.content, {'attr': {'placeholder': "tapez les contenue de l'article"}})}}
+{{form_row(formArticle.image, {'attr': {'placeholder': "URL de l'image"}})}}
+
+
+{{ form_widget(formArticle) }}
+
+<button type="submit" class ="btn btn-success">
+{% if editMode %}
+ Enregistrer les modifiation
+{% else %}
+Ajouter l'article</button>
+{% endif %}
+{{form_end(formArticle)}}
+
+{% endblock body %}

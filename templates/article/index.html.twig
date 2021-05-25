@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Article index{% endblock %}
+
+{% block body %}
+    <h1>Article index</h1>
+
+    {{ form_start(formSearch) }}
+        <div class="form-row align-items-end" >
+            <div class="col">
+             {{ form_row(formSearch.Title) }}
+            </div>
+            <div class="col">
+                <div class="form-group">
+                   <button type="submit" class="btn btn-success">Rechercher</button>
+                </div>
+            </div>
+    </div>
+    {{ form_end(formSearch) }}
+    
+            <section id="gallery">
+            <div class="container">
+            
+                <div class="row">
+                {% for article in articles %}
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <img src="{{asset('uploads/')}}{{article.image}}" alt="" class="card-img-top">
+                            <div class="card-body">
+                                <h5 class="card-title">{{  article.title }}</h5>
+                                <div class="metadata">ecrit le {{article.createdAt | date ('d/m/y')}}a {{article.createdAt | date('H:i')}}</div>
+                                <p class="card-text">{{article.content}}</p>
+                                <a href="{{ path('article_show', {'id': article.id}) }}"class="btn btn-outline-success btn-sm">show</a>
+                    <a href="{{ path('article_edit', {'id': article.id}) }}"class="btn btn-outline-danger btn-sm">edit</a>
+                </div>
+                      </div>
+                    </div>
+                    {% else %}
+                <h1>no records found<h1>
+
+        {% endfor %}
+                </div>
+
+            </div>
+            </section>
+            <div class="text-center">
+            <a href="{{ path('article_new') }}" type="button" class="btn btn-primary" >Create new</a>
+            </div>
+{% endblock %}
