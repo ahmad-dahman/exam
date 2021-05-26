@@ -20,9 +20,15 @@ class CommentController extends AbstractController
      */
     public function index(CommentRepository $commentRepository): Response
     {
-        return $this->render('comment/index.html.twig', [
-            'comments' => $commentRepository->findAll(),
-        ]);
+        $user = $this->getUser();
+        if($user){
+            return $this->render('comment/index.html.twig', [
+                'comments' => $commentRepository->findAll(),
+            ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -30,7 +36,9 @@ class CommentController extends AbstractController
      */
     public function new(Request $request): Response
     {
-        $comment = new Comment();
+        $user = $this->getUser();
+        if($user){
+            $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
 
@@ -46,6 +54,10 @@ class CommentController extends AbstractController
             'comment' => $comment,
             'form' => $form->createView(),
         ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -53,9 +65,15 @@ class CommentController extends AbstractController
      */
     public function show(Comment $comment): Response
     {
-        return $this->render('comment/show.html.twig', [
-            'comment' => $comment,
-        ]);
+        $user = $this->getUser();
+        if($user){
+            return $this->render('comment/show.html.twig', [
+                'comment' => $comment,
+            ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -63,7 +81,9 @@ class CommentController extends AbstractController
      */
     public function edit(Request $request, Comment $comment): Response
     {
-        $form = $this->createForm(CommentType::class, $comment);
+        $user = $this->getUser();
+        if($user){
+            $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -76,6 +96,10 @@ class CommentController extends AbstractController
             'comment' => $comment,
             'form' => $form->createView(),
         ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -83,12 +107,18 @@ class CommentController extends AbstractController
      */
     public function delete(Request $request, Comment $comment): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$comment->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($comment);
-            $entityManager->flush();
+        $user = $this->getUser();
+        if($user){
+            if ($this->isCsrfTokenValid('delete'.$comment->getId(), $request->request->get('_token'))) {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->remove($comment);
+                $entityManager->flush();
+            }
+    
+            return $this->redirectToRoute('comment_index');
+        }else{
+            return $this->redirectToRoute('home');
         }
-
-        return $this->redirectToRoute('comment_index');
+        
     }
 }

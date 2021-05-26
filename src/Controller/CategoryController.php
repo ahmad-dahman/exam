@@ -20,9 +20,15 @@ class CategoryController extends AbstractController
      */
     public function index(CategoryRepository $categoryRepository): Response
     {
-        return $this->render('category/index.html.twig', [
-            'categories' => $categoryRepository->findAll(),
-        ]);
+        $user = $this->getUser();
+        if($user){
+            return $this->render('category/index.html.twig', [
+                'categories' => $categoryRepository->findAll(),
+            ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -30,7 +36,9 @@ class CategoryController extends AbstractController
      */
     public function new(Request $request): Response
     {
-        $category = new Category();
+        $user = $this->getUser();
+        if($user){
+            $category = new Category();
         $form = $this->createForm(Category1Type::class, $category);
         $form->handleRequest($request);
 
@@ -46,6 +54,10 @@ class CategoryController extends AbstractController
             'category' => $category,
             'form' => $form->createView(),
         ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -53,9 +65,15 @@ class CategoryController extends AbstractController
      */
     public function show(Category $category): Response
     {
-        return $this->render('category/show.html.twig', [
-            'category' => $category,
-        ]);
+        $user = $this->getUser();
+        if($user){
+            return $this->render('category/show.html.twig', [
+                'category' => $category,
+            ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -63,7 +81,9 @@ class CategoryController extends AbstractController
      */
     public function edit(Request $request, Category $category): Response
     {
-        $form = $this->createForm(Category1Type::class, $category);
+        $user = $this->getUser();
+        if($user){
+            $form = $this->createForm(Category1Type::class, $category);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -76,6 +96,10 @@ class CategoryController extends AbstractController
             'category' => $category,
             'form' => $form->createView(),
         ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -83,12 +107,18 @@ class CategoryController extends AbstractController
      */
     public function delete(Request $request, Category $category): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$category->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($category);
-            $entityManager->flush();
+        $user = $this->getUser();
+        if($user){
+            if ($this->isCsrfTokenValid('delete'.$category->getId(), $request->request->get('_token'))) {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->remove($category);
+                $entityManager->flush();
+            }
+    
+            return $this->redirectToRoute('category_index');
+        }else{
+            return $this->redirectToRoute('home');
         }
-
-        return $this->redirectToRoute('category_index');
+        
     }
 }

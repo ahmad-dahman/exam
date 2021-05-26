@@ -22,7 +22,9 @@ class ArticleController extends AbstractController
      */
     public function index(ArticleRepository $articleRepository,  Request $request): Response
     {
-        $SearchByTitle = new SearchByTitle();
+        $user = $this->getUser();
+        if($user){
+            $SearchByTitle = new SearchByTitle();
         $form = $this->createForm(SearchByTitleType::class, $SearchByTitle);
         $form->handleRequest($request);
         $articles=[];
@@ -45,6 +47,10 @@ class ArticleController extends AbstractController
         ]);
 
         }
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -52,7 +58,9 @@ class ArticleController extends AbstractController
      */
     public function new(Request $request): Response
     {
-        $article = new Article();
+        $user = $this->getUser();
+        if($user){
+            $article = new Article();
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
@@ -76,6 +84,10 @@ class ArticleController extends AbstractController
             'article' => $article,
             'form' => $form->createView(),
         ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -83,9 +95,15 @@ class ArticleController extends AbstractController
      */
     public function show(Article $article): Response
     {
-        return $this->render('article/show.html.twig', [
-            'article' => $article,
-        ]);
+        $user = $this->getUser();
+        if($user){
+            return $this->render('article/show.html.twig', [
+                'article' => $article,
+            ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -93,7 +111,9 @@ class ArticleController extends AbstractController
      */
     public function edit(Request $request, Article $article): Response
     {
-        $form = $this->createForm(ArticleType::class, $article);
+        $user = $this->getUser();
+        if($user){
+            $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -106,6 +126,10 @@ class ArticleController extends AbstractController
             'article' => $article,
             'form' => $form->createView(),
         ]);
+        }else{
+            return $this->redirectToRoute('home');
+        }
+        
     }
 
     /**
@@ -113,12 +137,18 @@ class ArticleController extends AbstractController
      */
     public function delete(Request $request, Article $article): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$article->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($article);
-            $entityManager->flush();
+        $user = $this->getUser();
+        if($user){
+            if ($this->isCsrfTokenValid('delete'.$article->getId(), $request->request->get('_token'))) {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->remove($article);
+                $entityManager->flush();
+            }
+    
+            return $this->redirectToRoute('article_index');
+        }else{
+            return $this->redirectToRoute('home');
         }
-
-        return $this->redirectToRoute('article_index');
+        
     }
 }
